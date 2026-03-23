@@ -16,9 +16,15 @@ powershell -ExecutionPolicy Bypass -File .\setup_reverse_ssh_windows.ps1
 
 ## Reverse forwarding denied
 
-- Run `bash ./sshd_reverse_forwarding_check.sh` on the VPS.
+- Run `bash ./sshd_reverse_forwarding_check.sh` on the netcup VPS.
 - Review `AllowTcpForwarding`, `GatewayPorts`, and `Match` blocks.
 - Check sshd logs if the reverse tunnel is refused.
+
+## netcup firewall or SCP networking confusion
+
+- Confirm SSH to the netcup VPS still works normally.
+- Review the SCP firewall if enabled.
+- Remember that the reverse-forwarded MCP port is designed to stay private on `127.0.0.1`, so you normally should not open it publicly in the netcup firewall.
 
 ## Tunnel collapses after logout
 
@@ -62,3 +68,7 @@ If Hermes starts but cannot reach Obsidian, the MCP snippet may not have been me
 ## Model name typo
 
 Only `gpt-5.4` and `gpt-5.4-mini` are accepted by this repository.
+
+## Need emergency recovery on the VPS
+
+If you break SSH or firewall settings, recover through the netcup SCP rescue system and then roll back the problematic changes.

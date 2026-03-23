@@ -1,27 +1,27 @@
 # hermes-obsidian-vps-wizard
 
-A Windows-first setup wizard repository for connecting a Linux VPS running Hermes Agent to an Obsidian Desktop instance on a local Windows 11 machine through a private reverse SSH tunnel, with OpenAI as the Hermes provider.
+A Windows-first setup wizard repository for connecting a **netcup vServer / VPS** running Hermes Agent to an Obsidian Desktop instance on a local Windows 11 machine through a private reverse SSH tunnel, with OpenAI as the Hermes provider.
 
 ## 1. Purpose
 
 This repository generates production-leaning scripts, config snippets, examples, and docs for this exact stack:
 
-- Hermes Agent on a Linux VPS
+- Hermes Agent on a **Linux netcup vServer / VPS**
 - OpenAI API as Hermes' LLM provider
 - Default model: `gpt-5.4`
 - Optional cheaper/faster model: `gpt-5.4-mini`
 - Obsidian Desktop on a local Windows 11 machine only
 - Obsidian CLI REST or MCP-compatible local endpoint on that Windows machine only
 - Hermes talking to Obsidian over MCP at `/mcp`
-- Private reverse SSH tunnel from Windows to the VPS
+- Private reverse SSH tunnel from Windows to the netcup VPS
 - No public exposure by default
 - No Obsidian Desktop or official Obsidian CLI on the VPS
 
 ## 2. Stack summary
 
 - **Windows 11:** Obsidian Desktop, Obsidian REST/MCP plugin, API key, reverse SSH client loop
-- **Linux VPS:** Hermes Agent, Hermes provider env file, Hermes MCP config, optional localhost healthcheck timer
-- **Network path:** Windows `127.0.0.1:<local-port>` -> SSH reverse tunnel -> VPS `127.0.0.1:<remote-port>`
+- **netcup vServer / VPS:** Hermes Agent, Hermes provider env file, Hermes MCP config, optional localhost healthcheck timer
+- **Network path:** Windows `127.0.0.1:<local-port>` -> SSH reverse tunnel -> netcup VPS `127.0.0.1:<remote-port>`
 - **Secrets:** OpenAI key and Obsidian key are handled separately
 
 ## 3. ASCII architecture diagram
@@ -29,7 +29,7 @@ This repository generates production-leaning scripts, config snippets, examples,
 ```text
 [Windows 11 / Obsidian / Obsidian CLI REST]
   -> reverse SSH
-  -> [VPS 127.0.0.1:37124]
+  -> [netcup VPS 127.0.0.1:37124]
   -> [Hermes MCP config points to localhost]
   -> [Hermes using OpenAI provider env]
 ```
@@ -44,7 +44,7 @@ This repository generates production-leaning scripts, config snippets, examples,
 - `ssh.exe` reverse tunnel loop script
 - Optional Task Scheduler persistence
 
-### Linux VPS only
+### netcup vServer / VPS only
 
 - Hermes Agent
 - Hermes provider env file containing `OPENAI_API_KEY`
@@ -54,15 +54,15 @@ This repository generates production-leaning scripts, config snippets, examples,
 
 ## 5. Why this architecture is used
 
-This design keeps the Obsidian vault and GUI local to the Windows 11 machine while giving a stable, remotely hosted Hermes Agent on the VPS access to the local Obsidian MCP endpoint through a private channel.
+This design keeps the Obsidian vault and GUI local to the Windows 11 machine while giving a stable, remotely hosted Hermes Agent on a netcup VPS access to the local Obsidian MCP endpoint through a private channel.
 
 ## 6. Why reverse SSH is preferred here
 
-Reverse SSH is the default because the Windows machine is commonly behind home NAT, the reverse connection originates from the Windows side, and the forwarded listener can stay bound to `127.0.0.1` on the VPS.
+Reverse SSH is the default because the Windows machine is commonly behind home NAT, the reverse connection originates from the Windows side, and the forwarded listener can stay bound to `127.0.0.1` on the netcup VPS.
 
 ## 7. Why Obsidian and the CLI are not on the VPS
 
-The VPS should not host the Obsidian application, vault, or the official Obsidian CLI. This repository is intentionally built around a local-only Windows Obsidian runtime and a remote-only Hermes runtime.
+The netcup VPS should not host the Obsidian application, vault, or the official Obsidian CLI. This repository is intentionally built around a local-only Windows Obsidian runtime and a remote-only Hermes runtime.
 
 ## 8. Hermes OpenAI provider setup
 
@@ -87,6 +87,10 @@ The provider env file is separate from the Hermes MCP config snippet and separat
 
 ## 10. Quickstart
 
+1. In the netcup **Server Control Panel (SCP)**, install a supported Linux image on the VPS, typically Debian or Ubuntu.
+2. Confirm the netcup VPS has SSH access and that you can log in as your chosen admin user.
+3. Generate the example files and then customize VPS- and Windows-side outputs.
+
 ```bash
 python -m wizard.cli generate-example
 python -m wizard.cli vps-setup
@@ -97,21 +101,22 @@ python -m wizard.cli verify
 
 ## 11. Ordered startup order
 
-1. Prepare Obsidian Desktop and the local REST/MCP plugin on Windows.
-2. Confirm the Windows-local `/mcp` endpoint works with the Obsidian API key.
-3. Check VPS SSH reverse-forwarding support.
-4. Install Hermes on the VPS.
-5. Fill in the Hermes provider env file with the OpenAI key and model.
-6. Merge the Hermes MCP snippet into the live Hermes config.
-7. Start the Windows reverse SSH loop.
-8. Verify the forwarded `/mcp` endpoint from the VPS.
-9. Start Hermes and test the MCP integration.
+1. Provision the netcup vServer / VPS in SCP.
+2. Prepare Obsidian Desktop and the local REST/MCP plugin on Windows.
+3. Confirm the Windows-local `/mcp` endpoint works with the Obsidian API key.
+4. Check netcup VPS SSH reverse-forwarding support.
+5. Install Hermes on the netcup VPS.
+6. Fill in the Hermes provider env file with the OpenAI key and model.
+7. Merge the Hermes MCP snippet into the live Hermes config.
+8. Start the Windows reverse SSH loop.
+9. Verify the forwarded `/mcp` endpoint from the netcup VPS.
+10. Start Hermes and test the MCP integration.
 
 ## 12. Verification
 
 - Run `powershell -ExecutionPolicy Bypass -File .\verify_windows_local.ps1 -LocalPort 27124 -ApiKey '<OBSIDIAN_API_KEY>'` on Windows.
-- Run `bash ./sshd_reverse_forwarding_check.sh` on the VPS.
-- Run `bash ./verify_vps_mcp.sh 37124 '<OBSIDIAN_API_KEY>'` on the VPS.
+- Run `bash ./sshd_reverse_forwarding_check.sh` on the netcup VPS.
+- Run `bash ./verify_vps_mcp.sh 37124 '<OBSIDIAN_API_KEY>'` on the netcup VPS.
 - Run `python -m wizard.cli verify` in this repository.
 
 ## 13. Changing ports
@@ -127,19 +132,20 @@ If you change the local Obsidian port or the VPS reverse-forwarded port, regener
 ## 15. Rotating the Obsidian key
 
 1. Update the key where it is stored locally on Windows.
-2. Update the key used for VPS verification.
+2. Update the key used for netcup VPS verification.
 3. Update any Hermes env file copy of `OBSIDIAN_API_KEY` if you store it there.
 4. Re-run both verification scripts.
 
 ## 16. Common mistakes
 
-- Installing Obsidian or the official Obsidian CLI on the VPS
+- Installing Obsidian or the official Obsidian CLI on the netcup VPS
 - Forgetting to merge `hermes_mcp_snippet.yaml` into the live Hermes config
 - Using an unsupported model name
 - Exposing the reverse-forwarded port publicly instead of loopback-only
-- Testing from the VPS before the Windows reverse tunnel is running
+- Testing from the netcup VPS before the Windows reverse tunnel is running
 - Mixing up the OpenAI and Obsidian API keys
 - Forgetting that the Windows side is usually behind home NAT
+- Forgetting to review the netcup SCP firewall posture before troubleshooting network access
 
 ## 17. File overview
 

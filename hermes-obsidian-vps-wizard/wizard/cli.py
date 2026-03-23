@@ -110,7 +110,7 @@ def validate_vps_inputs(vps: VpsConfig, tunnel: TunnelConfig, provider: HermesPr
     validate_hostname_or_ip(vps.host)
     validate_port(vps.ssh_port, "VPS SSH port")
     validate_port(tunnel.remote_port, "VPS remote port")
-    validate_username(vps.user, "VPS user")
+    validate_username(vps.user, "netcup VPS user")
     validate_model(provider.model)
     validate_writable_directory(ROOT)
 
@@ -120,7 +120,7 @@ def validate_windows_inputs(vps: VpsConfig, tunnel: TunnelConfig, windows: Windo
     validate_port(vps.ssh_port, "VPS SSH port")
     validate_port(tunnel.remote_port, "VPS remote port")
     validate_port(tunnel.local_port, "Obsidian local port")
-    validate_username(vps.user, "VPS user")
+    validate_username(vps.user, "netcup VPS user")
     validate_username(windows.windows_username, "Windows username")
     validate_secret(windows.obsidian_api_key, "Obsidian API key")
     validate_writable_directory(ROOT)
@@ -152,14 +152,14 @@ def build_example_configs() -> Tuple[VpsConfig, HermesProviderConfig, TunnelConf
 
 def command_vps_setup(_: argparse.Namespace) -> int:
     vps = VpsConfig(
-        host=prompt("VPS host"),
-        ssh_port=int(prompt("VPS ssh port", "22")),
-        user=prompt("VPS user"),
+        host=prompt("netcup VPS host"),
+        ssh_port=int(prompt("netcup VPS SSH port", "22")),
+        user=prompt("netcup VPS user"),
         hermes_config_path=Path(prompt("Hermes config path", "~/.hermes/config.yaml")),
         hermes_env_path=Path(prompt("Hermes env file path", "~/.hermes/.env")),
         create_systemd_healthcheck=prompt_bool("Create a systemd healthcheck timer", True),
     )
-    tunnel = TunnelConfig(local_port=27124, remote_port=int(prompt("Remote forwarded port on VPS loopback", "37124")))
+    tunnel = TunnelConfig(local_port=27124, remote_port=int(prompt("Remote forwarded port on netcup VPS loopback", "37124")))
     provider = HermesProviderConfig(model=prompt("OpenAI model", "gpt-5.4"), env_file_path=vps.hermes_env_path)
     validate_vps_inputs(vps, tunnel, provider)
     outputs = write_outputs(ROOT, render_vps_outputs(vps, provider, tunnel))
@@ -179,8 +179,8 @@ def command_windows_local_setup(_: argparse.Namespace) -> int:
         ssh_exe_path=prompt("Path to ssh.exe", default_ssh),
         create_task_scheduler_notes=prompt_bool("Generate Task Scheduler instructions", True),
     )
-    vps = VpsConfig(host=prompt("VPS host"), ssh_port=int(prompt("VPS ssh port", "22")), user=prompt("VPS user"))
-    tunnel = TunnelConfig(local_port=windows.obsidian_local_port, remote_port=int(prompt("VPS forwarded port", "37124")))
+    vps = VpsConfig(host=prompt("netcup VPS host"), ssh_port=int(prompt("netcup VPS SSH port", "22")), user=prompt("netcup VPS user"))
+    tunnel = TunnelConfig(local_port=windows.obsidian_local_port, remote_port=int(prompt("netcup VPS forwarded port", "37124")))
     validate_windows_inputs(vps, tunnel, windows)
     outputs = write_outputs(ROOT, render_windows_outputs(windows, vps, tunnel))
     warning = warn_if_ports_clash(tunnel.local_port, tunnel.remote_port)
@@ -240,11 +240,11 @@ def command_print_manual_steps(_: argparse.Namespace) -> int:
         "2. Enable the local Obsidian CLI REST or MCP-compatible plugin/service in Obsidian.",
         "3. Extract the plugin API key and store it locally on Windows in a safe location.",
         "4. Confirm the local MCP endpoint works at http://127.0.0.1:27124/mcp with Bearer authentication.",
-        "5. On the VPS, run sshd_reverse_forwarding_check.sh and confirm reverse forwarding is allowed.",
-        "6. Install Hermes on the VPS and prepare the Hermes provider environment file with OPENAI_API_KEY and HERMES_MODEL.",
-        "7. Merge hermes_mcp_snippet.yaml into ~/.hermes/config.yaml so Hermes targets 127.0.0.1 on the VPS.",
-        "8. Start setup_reverse_ssh_windows.ps1 to open the private reverse tunnel from Windows to the VPS.",
-        "9. Run verify_vps_mcp.sh on the VPS and verify the forwarded /mcp endpoint answers with the Obsidian API key.",
+        "5. On the netcup VPS, run sshd_reverse_forwarding_check.sh and confirm reverse forwarding is allowed.",
+        "6. Install Hermes on the netcup VPS and prepare the Hermes provider environment file with OPENAI_API_KEY and HERMES_MODEL.",
+        "7. Merge hermes_mcp_snippet.yaml into ~/.hermes/config.yaml so Hermes targets 127.0.0.1 on the netcup VPS.",
+        "8. Start setup_reverse_ssh_windows.ps1 to open the private reverse tunnel from Windows to the netcup VPS.",
+        "9. Run verify_vps_mcp.sh on the netcup VPS and verify the forwarded /mcp endpoint answers with the Obsidian API key.",
         "10. Start Hermes and run an end-to-end tool call against the Obsidian MCP server.",
     ]
     for step in steps:
@@ -282,7 +282,7 @@ def command_dry_run_all(_: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Generate Windows-first Hermes + Obsidian VPS setup artifacts.")
+    parser = argparse.ArgumentParser(description="Generate Windows-first Hermes + Obsidian setup artifacts for a netcup vServer / VPS.")
     subparsers = parser.add_subparsers(dest="command", required=True)
     commands = {
         "vps-setup": command_vps_setup,

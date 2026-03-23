@@ -6,7 +6,7 @@ Treat `OPENAI_API_KEY` and `OBSIDIAN_API_KEY` as different credentials with diff
 
 ## Loopback-only forwarding
 
-The recommended SSH command binds the forwarded VPS listener to `127.0.0.1` only. That keeps the MCP endpoint private to the VPS.
+The recommended SSH command binds the forwarded listener on the **netcup VPS** to `127.0.0.1` only. That keeps the MCP endpoint private to the VPS.
 
 ## Windows local threat surface
 
@@ -14,15 +14,19 @@ The local Obsidian plugin is still a local attack surface on the Windows machine
 
 ## SSH key authentication recommendation
 
-Prefer SSH key authentication for the Windows-to-VPS tunnel instead of passwords.
+Prefer SSH key authentication for the Windows-to-netcup-VPS tunnel instead of passwords.
 
 ## Public exposure risks
 
-Avoid `GatewayPorts yes` style public exposure for this workflow. The design target is a private loopback-only listener on the VPS.
+Avoid public exposure for the forwarded MCP port. The design target is a private loopback-only listener on the VPS.
 
 ## Least privilege
 
 Use a dedicated VPS user for the reverse tunnel and Hermes if practical.
+
+## netcup control-plane considerations
+
+If you use the netcup SCP firewall, allow only the minimum required inbound SSH access. The forwarded MCP listener does not need a public firewall rule when it stays on localhost.
 
 ## Rotate both credentials
 
