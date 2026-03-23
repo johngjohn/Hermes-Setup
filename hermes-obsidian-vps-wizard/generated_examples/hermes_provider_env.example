@@ -1,0 +1,10 @@
+# Hermes provider environment example.
+# Copy this to your real Hermes env file and fill in the secrets.
+OPENAI_API_KEY=
+HERMES_MODEL=gpt-5.4
+OBSIDIAN_API_KEY=
+OBSIDIAN_LOCAL_PORT=27124
+VPS_HOST=vps.example.net
+VPS_SSH_PORT=22
+VPS_USER=hermes
+VPS_REMOTE_PORT=37124
