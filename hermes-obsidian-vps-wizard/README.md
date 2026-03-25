@@ -4,6 +4,14 @@ A Windows-first setup wizard repository for connecting a **netcup vServer / VPS*
 
 ## 1. Purpose
 
+Primary purpose: this is the operator repository for one environment (John + Ariel/Hermes), where Hermes runs on a VPS and shares controlled access to a Windows-local Obsidian vault.
+
+Secondary purpose: reusable guidance for others after the personal workflow is stable.
+
+Operator policy docs:
+- `docs/SHARED_CONTROL_CONTRACT.md`
+- `docs/DAY2_OPS_RUNBOOK.md`
+
 This repository generates production-leaning scripts, config snippets, examples, and docs for this exact stack:
 
 - Hermes Agent on a **Linux netcup vServer / VPS**
@@ -68,16 +76,14 @@ The netcup VPS should not host the Obsidian application, vault, or the official 
 
 Populate the generated provider env file with:
 
-- `OPENAI_API_KEY=`
+- `OPENAI_API_KEY=***`
 - `HERMES_MODEL=gpt-5.4`
-- `OBSIDIAN_API_KEY=`
-- `OBSIDIAN_LOCAL_PORT=27124`
 - `VPS_HOST=`
 - `VPS_SSH_PORT=22`
 - `VPS_USER=`
 - `VPS_REMOTE_PORT=37124`
 
-The provider env file is separate from the Hermes MCP config snippet and separate from how you store the Windows-side Obsidian API key locally.
+Do not persist `OBSIDIAN_API_KEY` in VPS env files. Keep that key Windows-local and only enter it interactively when verification scripts prompt.
 
 ## 9. Model selection guidance
 
@@ -114,9 +120,9 @@ python -m wizard.cli verify
 
 ## 12. Verification
 
-- Run `powershell -ExecutionPolicy Bypass -Command "$env:OBSIDIAN_API_KEY='<OBSIDIAN_API_KEY>'; .\\verify_windows_local.ps1 -LocalPort 27124"` on Windows.
+- Run `powershell -ExecutionPolicy Bypass -Command "$env:OBSIDIAN_API_KEY='<OBSID...KEY>'; .\\verify_windows_local.ps1 -LocalPort 27124"` on Windows.
 - Run `bash ./sshd_reverse_forwarding_check.sh` on the netcup VPS.
-- Run `OBSIDIAN_API_KEY='<OBSIDIAN_API_KEY>' bash ./verify_vps_mcp.sh 37124` on the netcup VPS.
+- Run `bash ./verify_vps_mcp.sh 37124` on the netcup VPS and enter the key when prompted.
 - Run `python -m wizard.cli verify` in this repository.
 
 ## 13. Changing ports
@@ -132,9 +138,9 @@ If you change the local Obsidian port or the VPS reverse-forwarded port, regener
 ## 15. Rotating the Obsidian key
 
 1. Update the key where it is stored locally on Windows.
-2. Update the key used for netcup VPS verification.
-3. Update any Hermes env file copy of `OBSIDIAN_API_KEY` if you store it there.
-4. Re-run both verification scripts.
+2. Re-run the Windows verification script with the updated key.
+3. Re-run the VPS verification script and enter the updated key when prompted.
+4. Do not store `OBSIDIAN_API_KEY` in persistent VPS env files.
 
 ## 16. Common mistakes
 
@@ -152,7 +158,7 @@ If you change the local Obsidian port or the VPS reverse-forwarded port, regener
 - `wizard/` — Python CLI, models, validation, rendering, and checks
 - `templates/` — source templates for generated files
 - `generated_examples/` — checked-in example outputs using dummy values
-- `docs/` — manual setup, troubleshooting, security, Windows setup, and VPS prechecks
+- `docs/` — manual setup, troubleshooting, security, Windows setup, VPS prechecks, shared-control contract, and day-2 ops runbook
 - `.env.example` — Windows-local example values for the reverse SSH loop
 
 ## Repository commands

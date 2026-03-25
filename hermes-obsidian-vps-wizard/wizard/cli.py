@@ -198,7 +198,6 @@ def command_verify(_: argparse.Namespace) -> int:
         checks = [
             assert_contains(ROOT / "hermes_provider_env.example", "OPENAI_API_KEY="),
             assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL="),
-            assert_contains(ROOT / "hermes_provider_env.example", "OBSIDIAN_API_KEY="),
             assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL=gpt-5.4"),
             assert_contains(ROOT / "hermes_provider_env.example", "VPS_REMOTE_PORT="),
             assert_contains(ROOT / "hermes_mcp_snippet.yaml", 'url: "http://127.0.0.1:'),
@@ -244,7 +243,7 @@ def command_print_manual_steps(_: argparse.Namespace) -> int:
         "6. Install Hermes on the netcup VPS and prepare the Hermes provider environment file with OPENAI_API_KEY and HERMES_MODEL.",
         "7. Merge hermes_mcp_snippet.yaml into ~/.hermes/config.yaml so Hermes targets 127.0.0.1 on the netcup VPS.",
         "8. Start setup_reverse_ssh_windows.ps1 to open the private reverse tunnel from Windows to the netcup VPS.",
-        "9. Set OBSIDIAN_API_KEY in the shell and run verify_vps_mcp.sh on the netcup VPS to verify the forwarded /mcp endpoint.",
+        "9. Run verify_vps_mcp.sh on the netcup VPS and enter the Obsidian API key interactively when prompted.",
         "10. Start Hermes and run an end-to-end tool call against the Obsidian MCP server.",
     ]
     for step in steps:
