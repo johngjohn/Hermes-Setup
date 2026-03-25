@@ -1,0 +1,42 @@
+name: hermes-obsidian-wizard-ci
+
+on:
+  pull_request:
+    paths:
+      - 'hermes-obsidian-vps-wizard/**'
+      - '.github/workflows/hermes-obsidian-wizard-ci.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'hermes-obsidian-vps-wizard/**'
+      - '.github/workflows/hermes-obsidian-wizard-ci.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate and verify wizard outputs
+        working-directory: hermes-obsidian-vps-wizard
+        run: |
+          set -euo pipefail
+          python -m wizard.cli generate-example
+          python -m wizard.cli verify
+          python -m wizard.cli dry-run-all
+
+      - name: Enforce key-handling policy
+        working-directory: hermes-obsidian-vps-wizard
+        run: |
+          set -euo pipefail
+          echo "Checking that Obsidian API key is not required as VPS CLI arg in docs/check plans..."
+          ! grep -RIn -- "verify_vps_mcp\.sh .*<OBSIDIAN_API_KEY>" README.md docs wizard || (echo "Found forbidden VPS CLI key usage." && exit 1)
+          ! grep -RIn -- "-ApiKey '<OBSIDIAN_API_KEY>'" README.md docs wizard || (echo "Found forbidden Windows CLI key example." && exit 1)
+          echo "Policy checks passed."
