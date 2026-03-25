@@ -11,15 +11,15 @@ echo "[info] Expected tunnel: ssh -N -R 127.0.0.1:${VPS_REMOTE_PORT}:127.0.0.1:$
 
 echo "[info] Reminder: if you use the netcup SCP firewall, SSH must remain reachable; the forwarded MCP port usually should not be opened publicly."
 
-for file in "${CONFIG_FILES[@]}"; do
-  if [ -r "$file" ]; then
+for file in "$${CONFIG_FILES[@]}"; do
+  if [ -r "$$file" ]; then
     READABLE=1
-    echo "[info] Inspecting $file"
-    grep -Ei '^(AllowTcpForwarding|GatewayPorts|PermitOpen|Match)' "$file" || true
+    echo "[info] Inspecting $$file"
+    grep -Ei '^(AllowTcpForwarding|GatewayPorts|PermitOpen|Match)' "$$file" || true
   fi
 done
 
-if [ "$READABLE" -eq 0 ]; then
+if [ "$$READABLE" -eq 0 ]; then
   echo "[warn] sshd configuration files were not readable. Manually review sshd policy and runtime logs."
 fi
 

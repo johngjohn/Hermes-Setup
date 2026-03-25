@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REMOTE_PORT="${1:-37124}"
-API_KEY="${2:-}"
-URL="http://127.0.0.1:${REMOTE_PORT}/mcp"
+REMOTE_PORT="37124"
+if [ "$#" -ge 1 ] && [ -n "$1" ]; then
+  REMOTE_PORT="$1"
+fi
+
+API_KEY="${OBSIDIAN_API_KEY-}"
+if [ "$#" -ge 2 ] && [ -n "$2" ]; then
+  API_KEY="$2"
+fi
+
+URL="http://127.0.0.1:$REMOTE_PORT/mcp"
 TMP_BODY="$(mktemp)"
 trap 'rm -f "$TMP_BODY"' EXIT
 
@@ -13,13 +21,20 @@ if ! command -v curl >/dev/null 2>&1; then
 fi
 
 if [ -z "$API_KEY" ]; then
-  echo "Usage: $0 <remote-port> <obsidian-api-key>"
+  read -rsp "Obsidian API key: " API_KEY
+  echo
+fi
+
+if [ -z "$API_KEY" ]; then
+  echo "[error] Missing Obsidian API key."
+  echo "Usage: $0 [remote-port] [obsidian-api-key]"
+  echo "Or set OBSIDIAN_API_KEY in the environment."
   exit 2
 fi
 
 echo "[info] Checking VPS-local MCP endpoint at $URL"
 HTTP_CODE="$(curl -sS -o "$TMP_BODY" -w '%{http_code}' \
-  -H "Authorization: Bearer ${API_KEY}" \
+  -H "Authorization: Bearer $API_KEY" \
   --connect-timeout 10 \
   --max-time 20 \
   "$URL" || true)"

@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HERMES_DIR="$HOME/.hermes"
-CONFIG_PATH="/root/.hermes/config.yaml"
-ENV_PATH="/root/.hermes/.env"
+CONFIG_PATH_RAW="~/.hermes/config.yaml"
+ENV_PATH_RAW="~/.hermes/.env"
 BACKUP_SUFFIX="$(date +%Y%m%d%H%M%S)"
+
+expand_tilde() {
+  local p="$1"
+  if [[ "$p" == ~* ]]; then
+    printf '%s\n' "$HOME${p:1}"
+  else
+    printf '%s\n' "$p"
+  fi
+}
+
+CONFIG_PATH="$(expand_tilde "$CONFIG_PATH_RAW")"
+ENV_PATH="$(expand_tilde "$ENV_PATH_RAW")"
+HERMES_DIR="$(dirname "$CONFIG_PATH")"
 
 mkdir -p "$HERMES_DIR"
 chmod 700 "$HERMES_DIR"
@@ -40,5 +52,5 @@ Next steps:
 3. Run ./sshd_reverse_forwarding_check.sh to confirm sshd allows reverse forwarding on the netcup VPS.
 4. Confirm the netcup SCP firewall does not interfere with SSH management access.
 5. Bring up the Windows reverse SSH loop.
-6. Run ./verify_vps_mcp.sh 37124 '<OBSIDIAN_API_KEY>' once the tunnel is active.
+6. Export OBSIDIAN_API_KEY and run ./verify_vps_mcp.sh 37124 once the tunnel is active.
 MSG

@@ -10,7 +10,7 @@ from .detect import detect_ssh_exe, repo_root
 from .hermes_config import display_path, mcp_snippet, provider_env_example, windows_env_example
 from .io_utils import write_many
 from .models import HermesMcpConfig, HermesProviderConfig, TunnelConfig, VpsConfig, WindowsLocalConfig, WizardOutputs
-from .render import render_template
+from .render import TemplateRenderError, render_template
 from .validate import (
     ValidationError,
     validate_hostname_or_ip,
@@ -203,7 +203,7 @@ def command_verify(_: argparse.Namespace) -> int:
             assert_contains(ROOT / "hermes_provider_env.example", "VPS_REMOTE_PORT="),
             assert_contains(ROOT / "hermes_mcp_snippet.yaml", 'url: "http://127.0.0.1:'),
             assert_contains(ROOT / "hermes_mcp_snippet.yaml", 'Authorization: "Bearer ${OBSIDIAN_API_KEY}"'),
-            assert_contains(ROOT / "setup_reverse_ssh_windows.ps1", "ssh -N -R 127.0.0.1:"),
+            assert_contains(ROOT / "setup_reverse_ssh_windows.ps1", "ExitOnForwardFailure=yes"),
             assert_contains(ROOT / "setup_reverse_ssh_windows.ps1", ":127.0.0.1:"),
             assert_contains(ROOT / "verify_vps_mcp.sh", "Authorization: Bearer"),
             assert_contains(ROOT / "verify_windows_local.ps1", "/mcp"),
@@ -244,7 +244,7 @@ def command_print_manual_steps(_: argparse.Namespace) -> int:
         "6. Install Hermes on the netcup VPS and prepare the Hermes provider environment file with OPENAI_API_KEY and HERMES_MODEL.",
         "7. Merge hermes_mcp_snippet.yaml into ~/.hermes/config.yaml so Hermes targets 127.0.0.1 on the netcup VPS.",
         "8. Start setup_reverse_ssh_windows.ps1 to open the private reverse tunnel from Windows to the netcup VPS.",
-        "9. Run verify_vps_mcp.sh on the netcup VPS and verify the forwarded /mcp endpoint answers with the Obsidian API key.",
+        "9. Set OBSIDIAN_API_KEY in the shell and run verify_vps_mcp.sh on the netcup VPS to verify the forwarded /mcp endpoint.",
         "10. Start Hermes and run an end-to-end tool call against the Obsidian MCP server.",
     ]
     for step in steps:
@@ -303,7 +303,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(list(argv) if argv is not None else None)
     try:
         return args.func(args)
-    except ValidationError as exc:
+    except (ValidationError, TemplateRenderError) as exc:
         print(f"Validation error: {exc}")
         return 2
 
