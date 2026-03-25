@@ -1,0 +1,32 @@
+# Operator model routing policy for Hermes + Obsidian tasks.
+# Mode: auto = choose by task class, fixed = always use fallback/default model.
+mode: auto
+default_model: gpt-5.4
+models:
+  coding: gpt-5.3-codex
+  reasoning: gpt-5.4
+  fast: gpt-5.4-mini
+routing_rules:
+  - class: coding
+    when_any:
+      - code
+      - script
+      - javascript
+      - html
+      - css
+      - python
+      - debug
+      - refactor
+  - class: reasoning
+    when_any:
+      - design
+      - architecture
+      - policy
+      - plan
+      - summary
+  - class: fast
+    when_any:
+      - quick
+      - simple
+      - short
+      - check

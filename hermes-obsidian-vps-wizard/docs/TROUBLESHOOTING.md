@@ -67,7 +67,7 @@ If Hermes starts but cannot reach Obsidian, the MCP snippet may not have been me
 
 ## Model name typo
 
-Only `gpt-5.4` and `gpt-5.4-mini` are accepted by this repository.
+Fallback model must be `gpt-5.4` or `gpt-5.4-mini`. In auto-routing mode, coding model may also be `gpt-5.3-codex`.
 
 ## Need emergency recovery on the VPS
 

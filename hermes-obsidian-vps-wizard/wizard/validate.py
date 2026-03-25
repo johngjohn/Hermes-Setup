@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Optional
 
-from .models import ALLOWED_MODELS
+from .models import ALLOWED_DEFAULT_MODELS, ALLOWED_ROUTING_MODELS, MODEL_ROUTING_MODES
 
 SAFE_USERNAME_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 HOSTNAME_RE = re.compile(r"^(?=.{1,253}$)(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*$")
@@ -39,8 +39,18 @@ def validate_hostname_or_ip(value: str) -> None:
 
 
 def validate_model(value: str) -> None:
-    if value not in ALLOWED_MODELS:
-        raise ValidationError(f"Model must be one of: {', '.join(ALLOWED_MODELS)}")
+    if value not in ALLOWED_DEFAULT_MODELS:
+        raise ValidationError(f"Default model must be one of: {', '.join(ALLOWED_DEFAULT_MODELS)}")
+
+
+def validate_routing_mode(value: str) -> None:
+    if value not in MODEL_ROUTING_MODES:
+        raise ValidationError(f"Routing mode must be one of: {', '.join(MODEL_ROUTING_MODES)}")
+
+
+def validate_routing_model(value: str, label: str) -> None:
+    if value not in ALLOWED_ROUTING_MODELS:
+        raise ValidationError(f"{label} must be one of: {', '.join(ALLOWED_ROUTING_MODELS)}")
 
 
 def validate_secret(value: str, label: str) -> None:

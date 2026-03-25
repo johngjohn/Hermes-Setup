@@ -9,6 +9,7 @@ REQUIRED_OUTPUTS = (
     ".env.example",
     "hermes_mcp_snippet.yaml",
     "hermes_provider_env.example",
+    "hermes_model_routing.yaml",
     "install_hermes_vps.sh",
     "setup_reverse_ssh_windows.ps1",
     "sshd_reverse_forwarding_check.sh",
@@ -48,5 +49,6 @@ def build_verification_plan(local_port: int, remote_port: int) -> VerificationPl
             "Obsidian API key mismatch causing 401/403 responses.",
             "VPS sshd policy blocks reverse forwarding via AllowTcpForwarding or Match rules.",
             "Hermes provider env not loaded or MCP snippet not merged into the live Hermes config.",
+            "Model routing file misconfigured; review hermes_model_routing.yaml and provider env model values.",
         ],
     )

@@ -8,6 +8,7 @@ This runbook is for ongoing operation after initial setup.
 2. Confirm reverse SSH loop is running on Windows.
 3. Confirm MCP endpoint responds through VPS localhost.
 4. Confirm Hermes can complete a simple Obsidian read action.
+5. Confirm `hermes_model_routing.yaml` still matches your preferred routing strategy.
 
 ## Commands
 

@@ -40,6 +40,8 @@ jobs:
           ! grep -RIn -- "verify_vps_mcp\.sh .*<OBSIDIAN_API_KEY>" README.md docs wizard || (echo "Found forbidden VPS CLI key usage." && exit 1)
           ! grep -RIn -- "-ApiKey '<OBSIDIAN_API_KEY>'" README.md docs wizard || (echo "Found forbidden Windows CLI key example." && exit 1)
           ! grep -RIn -- '^OBSIDIAN_API_KEY=' hermes_provider_env.example templates/hermes_provider_env.example.tpl || (echo "Found OBSIDIAN_API_KEY persisted in VPS provider env example." && exit 1)
+          test -f hermes_model_routing.yaml || (echo "Missing hermes_model_routing.yaml" && exit 1)
+          grep -q '^mode:' hermes_model_routing.yaml || (echo "hermes_model_routing.yaml missing mode" && exit 1)
           test -f docs/SHARED_CONTROL_CONTRACT.md || (echo "Missing docs/SHARED_CONTROL_CONTRACT.md" && exit 1)
           test -f docs/DAY2_OPS_RUNBOOK.md || (echo "Missing docs/DAY2_OPS_RUNBOOK.md" && exit 1)
           echo "Policy checks passed."
