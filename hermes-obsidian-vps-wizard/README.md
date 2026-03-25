@@ -16,8 +16,9 @@ This repository generates production-leaning scripts, config snippets, examples,
 
 - Hermes Agent on a **Linux netcup vServer / VPS**
 - OpenAI API as Hermes' LLM provider
-- Default model: `gpt-5.4`
-- Optional cheaper/faster model: `gpt-5.4-mini`
+- Default fallback model: `gpt-5.4`
+- Optional faster/cheaper model: `gpt-5.4-mini`
+- Optional coding-specialist model in routing policy: `gpt-5.3-codex`
 - Obsidian Desktop on a local Windows 11 machine only
 - Obsidian CLI REST or MCP-compatible local endpoint on that Windows machine only
 - Hermes talking to Obsidian over MCP at `/mcp`
@@ -78,6 +79,10 @@ Populate the generated provider env file with:
 
 - `OPENAI_API_KEY=***`
 - `HERMES_MODEL=gpt-5.4`
+- `HERMES_MODEL_MODE=auto`
+- `HERMES_MODEL_CODING=gpt-5.3-codex`
+- `HERMES_MODEL_REASONING=gpt-5.4`
+- `HERMES_MODEL_FAST=gpt-5.4-mini`
 - `VPS_HOST=`
 - `VPS_SSH_PORT=22`
 - `VPS_USER=`
@@ -87,9 +92,10 @@ Do not persist `OBSIDIAN_API_KEY` in VPS env files. Keep that key Windows-local 
 
 ## 9. Model selection guidance
 
-- Use `gpt-5.4` by default.
+- Use `gpt-5.4` as fallback/default model.
 - Use `gpt-5.4-mini` when lower latency or lower cost matters more than maximum capability.
-- The CLI enforces an allowlist of only these two model names.
+- Use `gpt-5.3-codex` for code-heavy Obsidian tasks (JS/HTML/Python/debugging).
+- The wizard supports auto routing (`auto`) or fixed single-model mode (`fixed`).
 
 ## 10. Quickstart
 
@@ -112,11 +118,12 @@ python -m wizard.cli verify
 3. Confirm the Windows-local `/mcp` endpoint works with the Obsidian API key.
 4. Check netcup VPS SSH reverse-forwarding support.
 5. Install Hermes on the netcup VPS.
-6. Fill in the Hermes provider env file with the OpenAI key and model.
-7. Merge the Hermes MCP snippet into the live Hermes config.
-8. Start the Windows reverse SSH loop.
-9. Verify the forwarded `/mcp` endpoint from the netcup VPS.
-10. Start Hermes and test the MCP integration.
+6. Fill in the Hermes provider env file with the OpenAI key and model-routing values.
+7. Keep `hermes_model_routing.yaml` as your operator routing policy for task-based model selection.
+8. Merge the Hermes MCP snippet into the live Hermes config.
+9. Start the Windows reverse SSH loop.
+10. Verify the forwarded `/mcp` endpoint from the netcup VPS.
+11. Start Hermes and test the MCP integration.
 
 ## 12. Verification
 
@@ -160,6 +167,7 @@ If you change the local Obsidian port or the VPS reverse-forwarded port, regener
 - `generated_examples/` — checked-in example outputs using dummy values
 - `docs/` — manual setup, troubleshooting, security, Windows setup, VPS prechecks, shared-control contract, and day-2 ops runbook
 - `.env.example` — Windows-local example values for the reverse SSH loop
+- `hermes_model_routing.yaml` — operator policy file for automatic per-task model selection
 
 ## Repository commands
 

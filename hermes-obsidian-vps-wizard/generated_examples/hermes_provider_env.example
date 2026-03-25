@@ -1,7 +1,11 @@
 # Hermes provider environment example.
 # Copy this to your real Hermes env file and fill in the secrets.
-OPENAI_API_KEY=
+OPENAI_API_KEY=<REPLACE_ME>
 HERMES_MODEL=gpt-5.4
+HERMES_MODEL_MODE=auto
+HERMES_MODEL_CODING=gpt-5.3-codex
+HERMES_MODEL_REASONING=gpt-5.4
+HERMES_MODEL_FAST=gpt-5.4-mini
 # OBSIDIAN_API_KEY intentionally not stored on VPS (Windows-local only).
 VPS_HOST=vps.example.net
 VPS_SSH_PORT=22

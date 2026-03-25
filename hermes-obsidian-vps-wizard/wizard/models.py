@@ -4,7 +4,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
-ALLOWED_MODELS = ("gpt-5.4", "gpt-5.4-mini")
+ALLOWED_DEFAULT_MODELS = ("gpt-5.4", "gpt-5.4-mini")
+ALLOWED_ROUTING_MODELS = ("gpt-5.4", "gpt-5.4-mini", "gpt-5.3-codex")
+MODEL_ROUTING_MODES = ("auto", "fixed")
 
 
 @dataclass
@@ -19,6 +21,10 @@ class HermesProviderConfig:
     model: str = "gpt-5.4"
     env_file_path: Path = Path("~/.hermes/.env")
     obsidian_api_key: str = ""
+    routing_mode: str = "auto"
+    coding_model: str = "gpt-5.3-codex"
+    reasoning_model: str = "gpt-5.4"
+    fast_model: str = "gpt-5.4-mini"
 
 
 @dataclass

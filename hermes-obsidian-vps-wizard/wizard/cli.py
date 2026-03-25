@@ -7,7 +7,7 @@ from typing import Dict, Iterable, Tuple
 
 from .checks import REQUIRED_OUTPUTS, assert_contains, assert_exists, build_verification_plan
 from .detect import detect_ssh_exe, repo_root
-from .hermes_config import display_path, mcp_snippet, provider_env_example, windows_env_example
+from .hermes_config import display_path, mcp_snippet, model_routing_yaml, provider_env_example, windows_env_example
 from .io_utils import write_many
 from .models import HermesMcpConfig, HermesProviderConfig, TunnelConfig, VpsConfig, WindowsLocalConfig, WizardOutputs
 from .render import TemplateRenderError, render_template
@@ -16,6 +16,8 @@ from .validate import (
     validate_hostname_or_ip,
     validate_model,
     validate_port,
+    validate_routing_mode,
+    validate_routing_model,
     validate_secret,
     validate_ssh_exe,
     validate_username,
@@ -75,6 +77,7 @@ def render_vps_outputs(vps: VpsConfig, provider: HermesProviderConfig, tunnel: T
         "install_hermes_vps.sh": render_template(TEMPLATES / "install_hermes_vps.sh.tpl", context),
         "hermes_mcp_snippet.yaml": mcp_snippet(HermesMcpConfig(config_path=vps.hermes_config_path, remote_port=tunnel.remote_port)),
         "hermes_provider_env.example": provider_env_example(provider, vps, tunnel),
+        "hermes_model_routing.yaml": model_routing_yaml(provider),
         "verify_vps_mcp.sh": render_template(TEMPLATES / "verify_vps_mcp.sh.tpl", context),
         "sshd_reverse_forwarding_check.sh": render_template(TEMPLATES / "sshd_reverse_forwarding_check.sh.tpl", context),
     }
@@ -112,6 +115,10 @@ def validate_vps_inputs(vps: VpsConfig, tunnel: TunnelConfig, provider: HermesPr
     validate_port(tunnel.remote_port, "VPS remote port")
     validate_username(vps.user, "netcup VPS user")
     validate_model(provider.model)
+    validate_routing_mode(provider.routing_mode)
+    validate_routing_model(provider.coding_model, "Coding model")
+    validate_routing_model(provider.reasoning_model, "Reasoning model")
+    validate_routing_model(provider.fast_model, "Fast model")
     validate_writable_directory(ROOT)
 
 
@@ -160,7 +167,26 @@ def command_vps_setup(_: argparse.Namespace) -> int:
         create_systemd_healthcheck=prompt_bool("Create a systemd healthcheck timer", True),
     )
     tunnel = TunnelConfig(local_port=27124, remote_port=int(prompt("Remote forwarded port on netcup VPS loopback", "37124")))
-    provider = HermesProviderConfig(model=prompt("OpenAI model", "gpt-5.4"), env_file_path=vps.hermes_env_path)
+    routing_mode = prompt("Model routing mode (auto or fixed)", "auto").lower()
+    fallback_model = prompt("Fallback OpenAI model", "gpt-5.4")
+
+    if routing_mode == "fixed":
+        coding_model = fallback_model
+        reasoning_model = fallback_model
+        fast_model = fallback_model
+    else:
+        coding_model = prompt("Coding task model", "gpt-5.3-codex")
+        reasoning_model = prompt("Reasoning/writing task model", "gpt-5.4")
+        fast_model = prompt("Fast/simple task model", "gpt-5.4-mini")
+
+    provider = HermesProviderConfig(
+        model=fallback_model,
+        env_file_path=vps.hermes_env_path,
+        routing_mode=routing_mode,
+        coding_model=coding_model,
+        reasoning_model=reasoning_model,
+        fast_model=fast_model,
+    )
     validate_vps_inputs(vps, tunnel, provider)
     outputs = write_outputs(ROOT, render_vps_outputs(vps, provider, tunnel))
     warning = warn_if_ports_clash(tunnel.local_port, tunnel.remote_port)
@@ -198,8 +224,15 @@ def command_verify(_: argparse.Namespace) -> int:
         checks = [
             assert_contains(ROOT / "hermes_provider_env.example", "OPENAI_API_KEY="),
             assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL="),
+            assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL_MODE="),
+            assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL_CODING="),
+            assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL_REASONING="),
+            assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL_FAST="),
             assert_contains(ROOT / "hermes_provider_env.example", "HERMES_MODEL=gpt-5.4"),
             assert_contains(ROOT / "hermes_provider_env.example", "VPS_REMOTE_PORT="),
+            assert_contains(ROOT / "hermes_model_routing.yaml", "mode:"),
+            assert_contains(ROOT / "hermes_model_routing.yaml", "default_model:"),
+            assert_contains(ROOT / "hermes_model_routing.yaml", "routing_rules:"),
             assert_contains(ROOT / "hermes_mcp_snippet.yaml", 'url: "http://127.0.0.1:'),
             assert_contains(ROOT / "hermes_mcp_snippet.yaml", 'Authorization: "Bearer ${OBSIDIAN_API_KEY}"'),
             assert_contains(ROOT / "setup_reverse_ssh_windows.ps1", "ExitOnForwardFailure=yes"),
@@ -240,11 +273,12 @@ def command_print_manual_steps(_: argparse.Namespace) -> int:
         "3. Extract the plugin API key and store it locally on Windows in a safe location.",
         "4. Confirm the local MCP endpoint works at http://127.0.0.1:27124/mcp with Bearer authentication.",
         "5. On the netcup VPS, run sshd_reverse_forwarding_check.sh and confirm reverse forwarding is allowed.",
-        "6. Install Hermes on the netcup VPS and prepare the Hermes provider environment file with OPENAI_API_KEY and HERMES_MODEL.",
-        "7. Merge hermes_mcp_snippet.yaml into ~/.hermes/config.yaml so Hermes targets 127.0.0.1 on the netcup VPS.",
-        "8. Start setup_reverse_ssh_windows.ps1 to open the private reverse tunnel from Windows to the netcup VPS.",
-        "9. Run verify_vps_mcp.sh on the netcup VPS and enter the Obsidian API key interactively when prompted.",
-        "10. Start Hermes and run an end-to-end tool call against the Obsidian MCP server.",
+        "6. Install Hermes on the netcup VPS and prepare hermes_provider_env.example with OPENAI_API_KEY and model routing values.",
+        "7. Keep hermes_model_routing.yaml as your operator policy reference for automatic task-based model selection.",
+        "8. Merge hermes_mcp_snippet.yaml into ~/.hermes/config.yaml so Hermes targets 127.0.0.1 on the netcup VPS.",
+        "9. Start setup_reverse_ssh_windows.ps1 to open the private reverse tunnel from Windows to the netcup VPS.",
+        "10. Run verify_vps_mcp.sh on the netcup VPS and enter the Obsidian API key interactively when prompted.",
+        "11. Start Hermes and run an end-to-end tool call against the Obsidian MCP server.",
     ]
     for step in steps:
         print(step)
