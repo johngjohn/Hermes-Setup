@@ -40,7 +40,7 @@ def build_verification_plan(local_port: int, remote_port: int) -> VerificationPl
         ],
         vps_commands=[
             "bash ./sshd_reverse_forwarding_check.sh",
-            f"OBSIDIAN_API_KEY='<OBSIDIAN_API_KEY>' bash ./verify_vps_mcp.sh {remote_port}",
+            f"bash ./verify_vps_mcp.sh {remote_port}",
         ],
         likely_fixes=[
             "Obsidian closed or plugin disabled on Windows.",

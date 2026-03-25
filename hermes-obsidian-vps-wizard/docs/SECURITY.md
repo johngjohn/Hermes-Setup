@@ -2,7 +2,7 @@
 
 ## Separate handling of OpenAI and Obsidian secrets
 
-Treat `OPENAI_API_KEY` and `OBSIDIAN_API_KEY` as different credentials with different blast radii. Rotate them separately and store them separately when possible.
+Treat `OPENAI_API_KEY` and `OBSIDIAN_API_KEY` as different credentials with different blast radii. `OPENAI_API_KEY` may live on VPS, but `OBSIDIAN_API_KEY` must remain Windows-local and should not be persisted in VPS env files.
 
 ## Loopback-only forwarding
 
