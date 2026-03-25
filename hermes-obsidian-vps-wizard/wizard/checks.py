@@ -35,12 +35,12 @@ def assert_contains(path: Path, needle: str) -> str | None:
 def build_verification_plan(local_port: int, remote_port: int) -> VerificationPlan:
     return VerificationPlan(
         windows_commands=[
-            f"powershell -ExecutionPolicy Bypass -File .\\verify_windows_local.ps1 -LocalPort {local_port} -ApiKey '<OBSIDIAN_API_KEY>'",
+            f"powershell -ExecutionPolicy Bypass -Command \"$env:OBSIDIAN_API_KEY='<OBSIDIAN_API_KEY>'; .\\verify_windows_local.ps1 -LocalPort {local_port}\"",
             ".\\setup_reverse_ssh_windows.ps1",
         ],
         vps_commands=[
             "bash ./sshd_reverse_forwarding_check.sh",
-            f"bash ./verify_vps_mcp.sh {remote_port} '<OBSIDIAN_API_KEY>'",
+            f"OBSIDIAN_API_KEY='<OBSIDIAN_API_KEY>' bash ./verify_vps_mcp.sh {remote_port}",
         ],
         likely_fixes=[
             "Obsidian closed or plugin disabled on Windows.",

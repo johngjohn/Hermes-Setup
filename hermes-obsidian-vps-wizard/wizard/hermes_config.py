@@ -56,4 +56,4 @@ def windows_env_example(windows_username: str, vps: VpsConfig, tunnel: TunnelCon
 
 
 def display_path(path: Path) -> str:
-    return str(path.expanduser())
+    return str(path)

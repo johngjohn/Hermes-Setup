@@ -10,7 +10,7 @@ This document prints the exact ordered manual process that the wizard automates 
 4. Enable the Obsidian CLI REST or MCP-compatible plugin/service inside Obsidian.
 5. Extract the plugin API key and store it locally on Windows.
 6. Confirm the plugin is listening on `127.0.0.1:27124` or your chosen local port.
-7. Run `verify_windows_local.ps1` with the Obsidian API key and confirm the local `/mcp` endpoint answers.
+7. Set `OBSIDIAN_API_KEY` and run `verify_windows_local.ps1` to confirm the local `/mcp` endpoint answers.
 8. On the netcup VPS, confirm the OpenSSH server is installed and running.
 9. Run `sshd_reverse_forwarding_check.sh` and review `AllowTcpForwarding`, `GatewayPorts`, `Match` rules, and the netcup SCP firewall posture.
 10. Install Hermes on the netcup VPS and create or update the provider env file containing the OpenAI API key.

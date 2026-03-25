@@ -30,7 +30,19 @@ if (-not (Test-Path -Path $SshExe)) {
     throw "ssh.exe not found at $SshExe. Install the Windows OpenSSH Client or update -SshExe."
 }
 
-$TunnelTarget = "ssh -N -R 127.0.0.1:$VpsRemotePort:127.0.0.1:$ObsidianLocalPort -p $VpsSshPort $VpsUser@$VpsHost"
+$sshArgs = @(
+    '-N'
+    '-R', "127.0.0.1:$VpsRemotePort:127.0.0.1:$ObsidianLocalPort"
+    '-p', "$VpsSshPort"
+    '-o', 'ExitOnForwardFailure=yes'
+    '-o', 'ServerAliveInterval=30'
+    '-o', 'ServerAliveCountMax=3'
+    '-o', 'ConnectTimeout=10'
+    '-o', 'StrictHostKeyChecking=accept-new'
+    "$VpsUser@$VpsHost"
+)
+
+$TunnelTarget = "ssh $($sshArgs -join ' ')"
 Write-Log "Starting reverse SSH loop."
 Write-Log "Exact reverse tunnel target: $TunnelTarget"
 Write-Log "Press Ctrl+C to stop the loop."
@@ -42,7 +54,7 @@ $null = Register-EngineEvent -SourceIdentifier ConsoleBreak -Action {
 try {
     while (-not $script:StopRequested) {
         Write-Log "Launching ssh.exe."
-        & $SshExe -N -R "127.0.0.1:$VpsRemotePort:127.0.0.1:$ObsidianLocalPort" -p $VpsSshPort "$VpsUser@$VpsHost"
+        & $SshExe @sshArgs
         $exitCode = $LASTEXITCODE
         if ($script:StopRequested) {
             break

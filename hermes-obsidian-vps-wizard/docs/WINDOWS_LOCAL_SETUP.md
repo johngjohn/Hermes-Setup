@@ -11,7 +11,7 @@ This repository is intentionally optimized for Windows 11 as the local machine a
 3. Record the local plugin port, usually `27124`.
 4. Record the plugin API key.
 5. Confirm `ssh.exe` exists, ideally at `C:\Windows\System32\OpenSSH\ssh.exe`.
-6. Run `verify_windows_local.ps1` locally against `http://127.0.0.1:<local-port>/mcp`.
+6. Set `OBSIDIAN_API_KEY` and run `verify_windows_local.ps1` locally against `http://127.0.0.1:<local-port>/mcp`.
 7. Run `setup_reverse_ssh_windows.ps1` to keep the reverse tunnel alive.
 
 ## Task Scheduler persistence notes

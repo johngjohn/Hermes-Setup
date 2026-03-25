@@ -5,4 +5,4 @@ After=network-online.target
 [Service]
 Type=oneshot
 WorkingDirectory=%h/hermes-obsidian-vps-wizard
-ExecStart=/usr/bin/env bash %h/hermes-obsidian-vps-wizard/verify_vps_mcp.sh 37124 "$OBSIDIAN_API_KEY"
+ExecStart=/usr/bin/env bash %h/hermes-obsidian-vps-wizard/verify_vps_mcp.sh 37124

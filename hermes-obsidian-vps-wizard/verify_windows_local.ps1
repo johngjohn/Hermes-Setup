@@ -1,12 +1,27 @@
 param(
     [int]$LocalPort = 27124,
-    [Parameter(Mandatory = $true)]
-    [string]$ApiKey
+    [string]$ApiKey = $env:OBSIDIAN_API_KEY
 )
 
 $ErrorActionPreference = 'Stop'
 $TargetHost = '127.0.0.1'
 $Url = "http://$TargetHost`:$LocalPort/mcp"
+
+if (-not $ApiKey) {
+    $secureApiKey = Read-Host -Prompt "Obsidian API key" -AsSecureString
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureApiKey)
+    try {
+        $ApiKey = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+    }
+    finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+    }
+}
+
+if (-not $ApiKey) {
+    Write-Host "[error] Missing Obsidian API key. Set OBSIDIAN_API_KEY or provide it at prompt."
+    exit 2
+}
 
 Write-Host "[info] Testing TCP on $TargetHost:$LocalPort"
 $tcp = Test-NetConnection -ComputerName $TargetHost -Port $LocalPort -WarningAction SilentlyContinue
@@ -17,7 +32,7 @@ if (-not $tcp.TcpTestSucceeded) {
 
 Write-Host "[info] Calling authenticated MCP endpoint at $Url"
 try {
-    $response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization = "Bearer $ApiKey" } -TimeoutSec 15 -UseBasicParsing
+    $response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{ Authorization="Bearer $ApiKey" } -TimeoutSec 15 -UseBasicParsing
     Write-Host "[ok] HTTP status: $($response.StatusCode)"
 }
 catch {

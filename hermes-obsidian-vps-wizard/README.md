@@ -114,9 +114,9 @@ python -m wizard.cli verify
 
 ## 12. Verification
 
-- Run `powershell -ExecutionPolicy Bypass -File .\verify_windows_local.ps1 -LocalPort 27124 -ApiKey '<OBSIDIAN_API_KEY>'` on Windows.
+- Run `powershell -ExecutionPolicy Bypass -Command "$env:OBSIDIAN_API_KEY='<OBSIDIAN_API_KEY>'; .\\verify_windows_local.ps1 -LocalPort 27124"` on Windows.
 - Run `bash ./sshd_reverse_forwarding_check.sh` on the netcup VPS.
-- Run `bash ./verify_vps_mcp.sh 37124 '<OBSIDIAN_API_KEY>'` on the netcup VPS.
+- Run `OBSIDIAN_API_KEY='<OBSIDIAN_API_KEY>' bash ./verify_vps_mcp.sh 37124` on the netcup VPS.
 - Run `python -m wizard.cli verify` in this repository.
 
 ## 13. Changing ports
