@@ -7,7 +7,7 @@ READABLE=0
 echo "[info] Reverse SSH is the default and recommended transport for this stack."
 echo "[info] Target platform: netcup vServer / VPS running Linux."
 echo "[info] Goal: keep the reverse-forwarded listener bound to VPS loopback only."
-echo "[info] Expected tunnel: ssh -N -R 127.0.0.1:37124:127.0.0.1:27124 -p 22 hermes@vps.example.net"
+echo "[info] Expected tunnel: ssh -N -R 127.0.0.1:37124:127.0.0.1:27124 -p 22 hermes@159.195.25.225"
 
 echo "[info] Reminder: if you use the netcup SCP firewall, SSH must remain reachable; the forwarded MCP port usually should not be opened publicly."
 

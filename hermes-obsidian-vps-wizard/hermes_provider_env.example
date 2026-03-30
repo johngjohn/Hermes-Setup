@@ -7,7 +7,7 @@ HERMES_MODEL_CODING=gpt-5.3-codex
 HERMES_MODEL_REASONING=gpt-5.4
 HERMES_MODEL_FAST=gpt-5.4-mini
 # OBSIDIAN_API_KEY intentionally not stored on VPS (Windows-local only).
-VPS_HOST=vps.example.net
+VPS_HOST=159.195.25.225
 VPS_SSH_PORT=22
 VPS_USER=hermes
 VPS_REMOTE_PORT=37124
